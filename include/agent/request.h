@@ -46,16 +46,22 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
 @property (nonatomic, assign) NSString *url;
 
 /**
- * The HTTP request query string dictionary.
- */
-
-@property (readwrite, strong) NSMutableDictionary *query;
-
-/**
  * Request timeout in seconds.
  */
 
 @property (nonatomic, readwrite) NSInteger timeout;
+
+/**
+ * Indicates if request should be aborted.
+ */
+
+@property (nonatomic, readwrite) BOOL aborted;
+
+/**
+ * Query dictionary that is serialized before a request occurs.
+ */
+
+@property (nonatomic, strong) NSMutableDictionary *query;
 
 /**
  * Creates an instance of `AgentRequest' from
@@ -86,6 +92,12 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
 - (instancetype) set: (NSDictionary *) headers;
 
 /**
+ * Unsets a header field by key.
+ */
+
+- (instancetype) unset: (NSString *) key;
+
+/**
  * Gets header field value by key.
  */
 
@@ -102,5 +114,52 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
  */
 
 - (NSInteger) timeout;
+
+/**
+ * Aborts request
+ */
+
+- (instancetype) abort;
+
+/**
+ * Sets the content type.
+ */
+
+- (instancetype) type: (NSString *) type;
+
+/**
+ * Gets the content type.
+ */
+
+- (NSString *) type;
+
+/**
+ * Sets the accept content type.
+ */
+
+- (instancetype) accept: (NSString *) type;
+
+/**
+ * Sets authorization header with user
+ * and password.
+ */
+
+- (instancetype) auth: (NSString *) user
+                 pass: (NSString *) pass;
+
+/**
+ * Deserializes (split by '=') a string and adds it
+ * to the query string dictionary if input is an instance
+ * of NSString or adds a dictionary of key<>value pairs to query
+ * string dictionary if input is an instance of NSDictionary.
+ */
+
+- (instancetype) query: (id) query;
+
+/**
+ * Gets the query string dictionary.
+ */
+
+- (NSDictionary *) query;
 
 @end
