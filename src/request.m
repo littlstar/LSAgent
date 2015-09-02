@@ -4,7 +4,6 @@
  * copyright (2) 2015 - Littlstar
  */
 
-#import <agent/agent.h>
 #import <agent/request.h>
 
 /**
@@ -75,6 +74,14 @@ serialize (id obj) {
 }
 
 /**
+ * AgentRequestError implementation.
+ */
+
+@implementation AgentRequestError
+@synthesize message;
+@end
+
+/**
  * AgentRequest class implementation. This class
  * is never used directly but rather returned from
  * the agent API interface.
@@ -87,20 +94,46 @@ serialize (id obj) {
  * an agent request method and URL.
  */
 
-+ (id) new: (AgentRequestMethod) method url: (NSString *) url {
-  AgentRequest *me = [[self alloc] init: method url: url];
-  return (id) me;
++ (id) new: (AgentRequestMethod) method url: (id) url {
+  if (isTypeof(url, NSString)) {
+    url = [NSURL URLWithString: url];
+  }
+
+  if (!isTypeof(url, NSURL)) {
+    [NSException raise: @"Invalid URL"
+                format: @"[AgentRequest new:url] expects NSString or NSURL."];
+    return nil;
+  }
+
+  id me = (id) [[self alloc] init: method url: url];
+  return me;
 }
 
 /**
- * Class initializer.
+ * Class initializer from url
  */
 
-- (id) init: (AgentRequestMethod) method url: (NSString *) url {
+- (id) init: (AgentRequestMethod) method url: (NSURL *) url {
   [super init];
+  _url = url;
+  _data = nil;
+  _form = [[NSMutableDictionary alloc] init];
+  _query = [[NSMutableDictionary alloc] init];
   _method = AGENT_GET;
-  _url = @"";
+  _headers = [[NSMutableDictionary alloc] init];
+  _aborted = NO;
   _timeout = 0;
+  _attachments = [[NSMutableDictionary alloc] init];
+
+  // initialize request
+  _request = [[NSMutableURLRequest alloc] initWithURL: _url];
+  NSString *httpmethod = nil;
+  switch (method) {
+    case AGENT_GET: httpmethod = @"GET"; break;
+    default:
+      [NSException raise: @"Invalid method" format: @""];
+  }
+  [_request setHTTPMethod: httpmethod];
   return self;
 }
 
@@ -208,9 +241,13 @@ serialize (id obj) {
 
 - (instancetype) query: (id) query {
   if (isTypeof(query, NSString)) {
-
+    NSArray *parts = [query componentsSeparatedByString: @"="];
+    NSString *key = (NSString *) parts[0];
+    NSString *value = (NSString *) parts[1];
+    _query[key] = value;
   } else if (isTypeof(query, NSDictionary)) {
-
+    for (id key in query)
+      _query[key] = query[key];
   } else {
     [NSException raise: @"Invalid query value"
                 format: @"query of %@ is invalid", query];
@@ -226,4 +263,88 @@ serialize (id obj) {
   return [NSDictionary dictionaryWithDictionary: _query];
 }
 
+/**
+ * Adds a field for form data.
+ */
+
+- (instancetype) field: (NSString *) key value: (NSString *) value {
+  _form[key] = value;
+  return self;
+}
+
+/**
+ * Append an attach
+ */
+
+- (instancetype) attach: (NSString *) key path: (NSString *) path {
+  _attachments[key] = path;
+  return self;
+}
+
+/**
+ * Sends data and will infer content type
+ * from class type.
+ */
+
+- (instancetype) send: (id) data {
+  NSString *type = [self get: @"content-type"];
+  _data = data;
+  if (!type) {
+    if (isTypeof(data, NSString)) {
+      [self type: @"html"];
+    }
+
+    if (isTypeof(data, NSArray)) {
+      [self type: @"json"];
+    }
+
+    if (isTypeof(data, NSDictionary)) {
+      [self type: @"json"];
+    }
+  }
+  return self;
+}
+
+/**
+ * Invokes request calling a given callback
+ * block.
+ */
+
+- (instancetype) end: (AgentRequestResponseBlock) done {
+  return self;
+}
+
+#pragma mark NSURLConnection delegate methods
+
+/**
+ * Handle event when request connection receives
+ * a response.
+ */
+
+- (void) connection: (NSURLConnection *) connection
+  didReceiveResponse: (NSURLResponse *) response {
+    NSLog(@"Did Receive Response %@", response);
+    //responseData = [[NSMutableData alloc]init];
+}
+
+/**
+ * Handle event when request connection receives
+ * response data.
+ */
+
+- (void) connection: (NSURLConnection *) connection
+     didReceiveData: (NSData *) data {
+  NSLog(@"Did Receive Data %@", data);
+  //[responseData appendData:data];
+ }
+
+- (void) connection: (NSURLConnection *) connection
+   didFailWithError: (NSError *) error {
+  NSLog(@"Did Fail with %@", error);
+}
+
+- (void) connectionDidFinishLoading: (NSURLConnection *) connection {
+  NSLog(@"Did Finish");
+  // Do something with responseData
+}
 @end

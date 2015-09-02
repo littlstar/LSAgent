@@ -5,7 +5,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <agent/agent.h>
+
+/**
+ * Class dependencies.
+ */
+
+@class AgentResponse;
+@class AgentRequestError;
 
 /**
  * Agent request HTTP verbs.
@@ -20,6 +26,26 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
   AGENT_OPTIONS,
   AGENT_PATCH
 };
+
+/**
+ * Request response callback.
+ */
+
+typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
+                                          AgentResponse *res);
+
+/**
+ * AgentRequestError class interface.
+ */
+
+@interface AgentRequestError : NSError
+
+/**
+ * Error message string.
+ */
+
+@property (nonatomic, readonly) NSString *message;
+@end
 
 /**
  * AgentRequest class interface.
@@ -40,10 +66,10 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
 @property (readwrite, strong) NSMutableDictionary *headers;
 
 /**
- * The HTTP request URL.
+ * The HTTP request URL as an instance of NSURL
  */
 
-@property (nonatomic, assign) NSString *url;
+@property (nonatomic, assign) NSURL *url;
 
 /**
  * Request timeout in seconds.
@@ -64,19 +90,43 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
 @property (nonatomic, strong) NSMutableDictionary *query;
 
 /**
+ * Form data dictionary.
+ */
+
+@property (nonatomic, strong) NSMutableDictionary *form;
+
+/**
+ * Attachment file paths dictionary.
+ */
+
+@property (nonatomic, strong) NSMutableDictionary *attachments;
+
+/**
+ * Request data.
+ */
+
+@property (nonatomic, strong) id data;
+
+/**
+ * Internal request object.
+ */
+
+@property (nonatomic, strong) NSMutableURLRequest *request;
+
+/**
  * Creates an instance of `AgentRequest' from
  * an agent request method and URL.
  */
 
 + (id) new: (AgentRequestMethod) method
-       url: (NSString *) url;
+       url: (id) url;
 
 /**
- * Class initializer.
+ * Class initializer from url.
  */
 
 - (id) init: (AgentRequestMethod) method
-        url: (NSString *) url;
+        url: (NSURL *) url;
 
 /**
  * Sets header field by key with value.
@@ -162,4 +212,31 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
 
 - (NSDictionary *) query;
 
+/**
+ * Adds a field for form data.
+ */
+
+- (instancetype) field: (NSString *) key
+                 value: (NSString *) value;
+
+/**
+ * Append an attach
+ */
+
+- (instancetype) attach: (NSString *) key
+                   path: (NSString *) path;
+
+/**
+ * Sends data and will infer content type
+ * from class type.
+ */
+
+- (instancetype) send: (id) data;
+
+/**
+ * Invokes request calling a given callback
+ * block.
+ */
+
+- (instancetype) end: (AgentRequestResponseBlock) done;
 @end
