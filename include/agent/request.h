@@ -120,6 +120,12 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
 @property (nonatomic, strong) NSMutableData *received;
 
 /**
+ * Request callback.
+ */
+
+@property (nonatomic, strong) AgentRequestResponseBlock callback;
+
+/**
  * Creates an instance of `AgentRequest' from
  * an agent request method and URL.
  */

@@ -342,6 +342,9 @@ serialize (id obj) {
 - (instancetype) end: (AgentRequestResponseBlock) done {
   NSString *httpmethod = nil;
 
+  // set callback
+  _callback = done;
+
   // initialize request
   _request = [[NSMutableURLRequest alloc]
     initWithURL: _url
@@ -387,8 +390,6 @@ serialize (id obj) {
    startImmediately: YES
   ];
 
-  NSLog(@"%@", conn);
-
   // make request
   [conn start];
   return self;
@@ -403,7 +404,6 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
   didReceiveResponse: (NSURLResponse *) response {
-  NSLog(@"Did Receive Response %@", response);
   _received = [[NSMutableData alloc] init];
 }
 
@@ -414,7 +414,6 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
      didReceiveData: (NSData *) data {
-  NSLog(@"Did Receive Data %@", data);
   [_received appendData: data];
  }
 
@@ -425,7 +424,8 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
    didFailWithError: (NSError *) error {
-  NSLog(@"Did Fail with %@", error);
+  AgentRequestError *err = (AgentRequestError *) error;
+  _callback(err, nil);
 }
 
 /**
@@ -434,6 +434,7 @@ serialize (id obj) {
  */
 
 - (void) connectionDidFinishLoading: (NSURLConnection *) connection {
-  NSLog(@"Did Finish");
+  AgentResponse *res = [AgentResponse new: self];
+  _callback(nil, res);
 }
 @end
