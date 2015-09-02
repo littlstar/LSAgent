@@ -5,6 +5,7 @@
  */
 
 #import <agent/request.h>
+#import <agent/response.h>
 
 /**
  * Predicate to determine if `a' is a
@@ -82,6 +83,44 @@ serialize (id obj) {
 @end
 
 /**
+ * NSURLConnection protocol methods.
+ */
+
+@interface AgentResponse ()
+
+/**
+ * Handle event when request connection receives
+ * a response.
+ */
+
+- (void) connection: (NSURLConnection *) connection
+ didReceiveResponse: (NSURLResponse *) response;
+
+/**
+ * Handle event when request connection receives
+ * response data.
+ */
+
+- (void) connection: (NSURLConnection *) connection
+     didReceiveData: (NSData *) data;
+
+/**
+ * Handle event when request connection receives
+ * an error.
+ */
+
+- (void) connection: (NSURLConnection *) connection
+   didFailWithError: (NSError *) error;
+
+/**
+ * Handle event when request connection finishes
+ * receiving data.
+ */
+
+- (void) connectionDidFinishLoading: (NSURLConnection *) connection;
+@end
+
+/**
  * AgentRequest class implementation. This class
  * is never used directly but rather returned from
  * the agent API interface.
@@ -124,16 +163,6 @@ serialize (id obj) {
   _aborted = NO;
   _timeout = 0;
   _attachments = [[NSMutableDictionary alloc] init];
-
-  // initialize request
-  _request = [[NSMutableURLRequest alloc] initWithURL: _url];
-  NSString *httpmethod = nil;
-  switch (method) {
-    case AGENT_GET: httpmethod = @"GET"; break;
-    default:
-      [NSException raise: @"Invalid method" format: @""];
-  }
-  [_request setHTTPMethod: httpmethod];
   return self;
 }
 
@@ -311,6 +340,57 @@ serialize (id obj) {
  */
 
 - (instancetype) end: (AgentRequestResponseBlock) done {
+  NSString *httpmethod = nil;
+
+  // initialize request
+  _request = [[NSMutableURLRequest alloc]
+    initWithURL: _url
+  ];
+
+  // set timeout
+  [_request setTimeoutInterval: _timeout];
+
+  // determine HTTP method
+  switch (_method) {
+    case AGENT_GET: httpmethod = @"GET"; break;
+    case AGENT_PUT: httpmethod = @"PUT"; break;
+    case AGENT_POST: httpmethod = @"POST"; break;
+    case AGENT_HEAD: httpmethod = @"HEAD"; break;
+    case AGENT_PATCH: httpmethod = @"PATCH"; break;
+    case AGENT_DELETE: httpmethod = @"DELETE"; break;
+    case AGENT_OPTIONS: httpmethod = @"OPTIONS"; break;
+    default: [NSException raise: @"Invalid method" format: @""];
+  }
+
+  // set method
+  [_request setHTTPMethod: httpmethod];
+
+  // set content length if applicable
+  if (_method == AGENT_PUT || _method == AGENT_POST) {
+    if (isTypeof(_data, NSString)) {
+      [self set: @"Content-Length" value: [
+        NSString stringWithFormat: @"%d", (unsigned int) [(NSString *) _data length]
+      ]];
+    }
+  }
+
+  // initialize headers
+  for (id key in _headers) {
+    [_request setValue: _headers[key]
+    forHTTPHeaderField: key];
+  }
+
+  // create connection
+  NSURLConnection *conn = [[NSURLConnection alloc]
+    initWithRequest: _request
+           delegate: self
+   startImmediately: YES
+  ];
+
+  NSLog(@"%@", conn);
+
+  // make request
+  [conn start];
   return self;
 }
 
@@ -323,8 +403,8 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
   didReceiveResponse: (NSURLResponse *) response {
-    NSLog(@"Did Receive Response %@", response);
-    //responseData = [[NSMutableData alloc]init];
+  NSLog(@"Did Receive Response %@", response);
+  _received = [[NSMutableData alloc] init];
 }
 
 /**
@@ -335,16 +415,25 @@ serialize (id obj) {
 - (void) connection: (NSURLConnection *) connection
      didReceiveData: (NSData *) data {
   NSLog(@"Did Receive Data %@", data);
-  //[responseData appendData:data];
+  [_received appendData: data];
  }
+
+/**
+ * Handle event when request connection receives
+ * an error.
+ */
 
 - (void) connection: (NSURLConnection *) connection
    didFailWithError: (NSError *) error {
   NSLog(@"Did Fail with %@", error);
 }
 
+/**
+ * Handle event when request connection finishes
+ * receiving data.
+ */
+
 - (void) connectionDidFinishLoading: (NSURLConnection *) connection {
   NSLog(@"Did Finish");
-  // Do something with responseData
 }
 @end
