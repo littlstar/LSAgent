@@ -25,6 +25,12 @@
 )
 
 /**
+ * Make a new thing.
+ */
+
+#define new(C) C.alloc.init
+
+/**
  * Determines a content type from
  * an alias string.
  */
@@ -61,7 +67,7 @@ determineType (NSString *type) {
 static NSString *
 serialize (id obj) {
   if (isTypeof(obj, NSString)) return obj;
-  NSMutableArray *parts = [[NSMutableArray alloc] init];
+  NSMutableArray *parts = new(NSMutableArray);
   for (id key in obj) {
     if (obj[key]) {
       NSString *enc = [
@@ -156,13 +162,13 @@ serialize (id obj) {
   [super init];
   _url = url;
   _data = nil;
-  _form = [[NSMutableDictionary alloc] init];
-  _query = [[NSMutableDictionary alloc] init];
+  _form = new(NSMutableDictionary);
+  _query = new(NSMutableDictionary);
   _method = AGENT_GET;
-  _headers = [[NSMutableDictionary alloc] init];
+  _headers = new(NSMutableDictionary);
   _aborted = NO;
   _timeout = 0;
-  _attachments = [[NSMutableDictionary alloc] init];
+  _attachments = new(NSMutableDictionary);
   return self;
 }
 
@@ -380,7 +386,8 @@ serialize (id obj) {
   // initialize headers
   for (id key in _headers) {
     [_request setValue: _headers[key]
-    forHTTPHeaderField: key];
+      forHTTPHeaderField: key
+    ];
   }
 
   // create connection
@@ -389,9 +396,6 @@ serialize (id obj) {
            delegate: self
    startImmediately: YES
   ];
-
-  // make request
-  [conn start];
   return self;
 }
 
@@ -404,7 +408,8 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
   didReceiveResponse: (NSURLResponse *) response {
-  _received = [[NSMutableData alloc] init];
+  _received = new(NSMutableData);
+  _response = response.copy;
 }
 
 /**
@@ -424,8 +429,7 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
    didFailWithError: (NSError *) error {
-  AgentRequestError *err = (AgentRequestError *) error;
-  _callback(err, nil);
+  _callback((AgentRequestError *) error, nil);
 }
 
 /**
@@ -435,6 +439,10 @@ serialize (id obj) {
 
 - (void) connectionDidFinishLoading: (NSURLConnection *) connection {
   AgentResponse *res = [AgentResponse new: self];
+  [res initializeWithNativeResponse: _response];
+  if (_received) {
+    [res setBody: [NSData dataWithData: _received]];
+  }
   _callback(nil, res);
 }
 @end

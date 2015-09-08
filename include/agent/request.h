@@ -126,6 +126,12 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
 @property (nonatomic, strong) AgentRequestResponseBlock callback;
 
 /**
+ * The native request response instance.
+ */
+
+@property (nonatomic, strong) NSURLResponse *response;
+
+/**
  * Creates an instance of `AgentRequest' from
  * an agent request method and URL.
  */

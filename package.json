@@ -1,0 +1,17 @@
+{
+  "name": "objective-agent",
+  "version": "0.0.1",
+  "repo": "littlstar/objective-agent",
+  "description": "Simple Objective-C HTTP request library.",
+  "keywords": ["http", "objecive-c", "objc", "request"],
+  "src": [
+    "include/agent.h",
+    "include/request.h",
+    "include/response.h",
+
+    "src/agent.m",
+    "src/request.m",
+    "src/response.m"
+  ]
+}
+

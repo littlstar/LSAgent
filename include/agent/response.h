@@ -25,6 +25,30 @@
 @property (nonatomic, strong) AgentRequest *request;
 
 /**
+ * Response headers.
+ */
+
+@property (nonatomic, assign) NSDictionary *headers;
+
+/**
+ * Native response object.
+ */
+
+@property (nonatomic, strong) NSHTTPURLResponse *response;
+
+/**
+ * HTTP response status code number.
+ */
+
+@property (nonatomic, readonly) long statusCode;
+
+/**
+ * Response body.
+ */
+
+@property (nonatomic, readonly) NSData *body;
+
+/**
  * Creates an instance of `AgentResponse' from
  * an initiated request.
  */
@@ -36,4 +60,16 @@
  */
 
 - (id) init: (AgentRequest *) request;
+
+/**
+ * Initializes response with native response.
+ */
+
+- (id) initializeWithNativeResponse: (NSURLResponse *) response;
+
+/**
+ * Sets response body.
+ */
+
+- (id) setBody: (NSData *) body;
 @end

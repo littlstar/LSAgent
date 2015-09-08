@@ -11,6 +11,9 @@
  */
 
 @implementation AgentResponse
+@synthesize body;
+@synthesize headers;
+@synthesize statusCode;
 
 /**
  * Creates an instance of `AgentResponse' from
@@ -28,6 +31,30 @@
 - (id) init: (AgentRequest *) request {
   [super init];
   _request = request;
+  _response = nil;
+  headers = nil;
+  return self;
+}
+
+/**
+ * Initializes response with native response.
+ */
+
+- (id) initializeWithNativeResponse: (NSURLResponse *) response {
+  _response = (NSHTTPURLResponse *) response;
+  if ([_response respondsToSelector: @selector(allHeaderFields)]) {
+    headers = _response.allHeaderFields;
+  }
+  statusCode = _response.statusCode;
+  return self;
+}
+
+/**
+ * Sets response body.
+ */
+
+- (id) setBody: (NSData *) b {
+  body = b;
   return self;
 }
 @end

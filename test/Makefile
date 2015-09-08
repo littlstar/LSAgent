@@ -16,8 +16,14 @@ CFLAGS += -I../include
 ## Linker flags
 LDFLAGS += -lobjc -framework Cocoa
 
+## Node executable
+NODE := $(shell which node) --harmony
+
+## NPM executable
+NPM := $(shell which npm)
+
 ## Builds all tests
-all: $(TESTS)
+all: support $(TESTS) support/cleanup
 
 ## Builds a named test
 $(TESTS): $(OBJS)
@@ -33,7 +39,33 @@ $(OBJS): $(SRC)
 $(LIB):
 	$(MAKE) -C ..
 
-clean:
+## Clean up tests
+clean: support/clean
 	$(RM) -f $(OBJS)
 	$(RM) -f $(TESTS)
+
+## Support test tasks
+.PHONY: support
+support: support/server
+
+## Cleans files created for support tasks
+.PHONY: support/clean
+support/clean: support/cleanup
+	$(RM) -rf support/server/node_modules
+
+## Start test server
+.PHONY: support/server
+support/server:
+	test -f $@/pid && kill -9 $(shell cat $@/pid); true;
+	$(RM) -f $@/pid
+	cd $@ && $(NPM) install
+	$(NODE) $@ &
+	sleep 1
+
+## Cleanup support related tasks
+.PHONY: support/cleanup
+support/cleanup:
+	@## Cleanup support server
+	test -f support/server/pid && kill -9 $(shell cat support/server/pid); true;
+	$(RM) -f support/server/pid
 

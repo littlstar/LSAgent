@@ -5,7 +5,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "request.h"
+#import <agent/request.h>
+#import <agent/response.h>
 
 /**
  * Public interface for using the objective
