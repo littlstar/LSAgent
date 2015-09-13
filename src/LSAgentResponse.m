@@ -1,34 +1,34 @@
 /**
- * `response.m' - libagent
+ * `LSAgentResponse.m' - libLSAgent
  *
  * copyright (2) 2015 - Littlstar
  */
 
-#import <agent/response.h>
+#import <LSAgent/LSAgentResponse.h>
 
 /**
- * AgentResponse implementation.
+ * LSAgentResponse implementation.
  */
 
-@implementation AgentResponse
+@implementation LSAgentResponse
 @synthesize body;
 @synthesize headers;
 @synthesize statusCode;
 
 /**
- * Creates an instance of `AgentResponse' from
+ * Creates an instance of `LSAgentResponse' from
  * an initiated request.
  */
 
-+ (id) new: (AgentRequest *) request {
++ (id) new: (LSAgentRequest *) request {
   return (id) [[self alloc] init: request];
 }
 
 /**
- * Class initializer from `AgentRequest'.
+ * Class initializer from `LSAgentRequest'.
  */
 
-- (id) init: (AgentRequest *) request {
+- (id) init: (LSAgentRequest *) request {
   [super init];
   _request = request;
   _response = nil;

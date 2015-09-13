@@ -1,35 +1,49 @@
 /**
- * `test/get.m' - libagent
+ * `test/get.m' - libLSAgent
  *
  * copyright (2) 2015 - Littlstar
  */
 
+#import "test.h"
 #import <assert.h>
-#import <agent/agent.h>
-
-// Base HTTP URI structure.
-#define BASE_URI "http://localhost:3000"
-
-// helper for stringifing a URI
-#define URLX(u) u
-
-// Creates a URI from BASE_URI
-#define URL(u) BASE_URI URLX(u)
-
-// Notify run loop we're done
-#define DONE() CFRunLoopStop(CFRunLoopGetCurrent());
+#import <LSAgent/LSAgent.h>
+#import "../deps/LSBatch/LSBatch.h"
 
 int
 main (void) {
-  [[Agent get: @URL("/echo")]
-          end: ^void (AgentRequestError *err, AgentResponse *res) {
-    assert(nil == err);
-    assert(res);
-    assert(200 == res.statusCode);
-    DONE();
+  LSBatch *batch = [LSBatch new: 1];
+  LABEL("basic");
+
+  [batch push: ^(LSBatchNextCallback next) {
+    BEGIN("/echo");
+    [[LSAgent get: @URL("/echo")]
+              end: ^(LSAgentRequestError *err, LSAgentResponse *res) {
+                assert(nil == err);
+                assert(res);
+                assert(200 == res.statusCode);
+                OK("/echo");
+                next(nil);
+              }];
   }];
 
-  // start CF loop
-  CFRunLoopRun();
-  return 0;
+  [batch push: ^(LSBatchNextCallback next) {
+    BEGIN("/ok");
+    [[LSAgent get: @URL("/ok")]
+              end: ^(LSAgentRequestError *err, LSAgentResponse *res) {
+                assert(nil == err);
+                assert(res);
+                assert(200 == res.statusCode);
+                NSString *str = [NSString stringWithUTF8String: res.body.bytes];
+                assert([str isEqualTo: @"ok"]);
+                OK("/ok");
+                next(err);
+              }];
+  }];
+
+  [batch end: ^(NSError *err) {
+    assert(nil == err);
+    END();
+  }];
+
+  return START();
 }

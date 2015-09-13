@@ -1,5 +1,5 @@
 /**
- * `request.h' - libagent
+ * `LSAgentRequest.h' - libLSAgent
  *
  * copyright (2) 2015 - Littlstar
  */
@@ -10,14 +10,14 @@
  * Class dependencies.
  */
 
-@class AgentResponse;
-@class AgentRequestError;
+@class LSAgentResponse;
+@class LSAgentRequestError;
 
 /**
- * Agent request HTTP verbs.
+ * LSAgent request HTTP verbs.
  */
 
-typedef NS_ENUM(NSInteger, AgentRequestMethod) {
+typedef NS_ENUM(NSInteger, LSAgentRequestMethod) {
   AGENT_GET,
   AGENT_POST,
   AGENT_PUT,
@@ -31,14 +31,14 @@ typedef NS_ENUM(NSInteger, AgentRequestMethod) {
  * Request response callback.
  */
 
-typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
-                                          AgentResponse *res);
+typedef void (^LSAgentRequestResponseBlock)(LSAgentRequestError *err,
+                                            LSAgentResponse *res);
 
 /**
- * AgentRequestError class interface.
+ * LSAgentRequestError class interface.
  */
 
-@interface AgentRequestError : NSError
+@interface LSAgentRequestError : NSError
 
 /**
  * Error message string.
@@ -48,16 +48,16 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
 @end
 
 /**
- * AgentRequest class interface.
+ * LSAgentRequest class interface.
  */
 
-@interface AgentRequest : NSObject
+@interface LSAgentRequest : NSObject
 
 /**
  * The type of HTTP request to make.
  */
 
-@property (readwrite) AgentRequestMethod method;
+@property (readwrite) LSAgentRequestMethod method;
 
 /**
  * Headers dictionary used by set/get.
@@ -123,7 +123,7 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
  * Request callback.
  */
 
-@property (nonatomic, strong) AgentRequestResponseBlock callback;
+@property (nonatomic, copy) LSAgentRequestResponseBlock callback;
 
 /**
  * The native request response instance.
@@ -132,18 +132,18 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
 @property (nonatomic, strong) NSURLResponse *response;
 
 /**
- * Creates an instance of `AgentRequest' from
+ * Creates an instance of `LSAgentRequest' from
  * an agent request method and URL.
  */
 
-+ (id) new: (AgentRequestMethod) method
++ (id) new: (LSAgentRequestMethod) method
        url: (id) url;
 
 /**
  * Class initializer from url.
  */
 
-- (id) init: (AgentRequestMethod) method
+- (id) init: (LSAgentRequestMethod) method
         url: (NSURL *) url;
 
 /**
@@ -256,5 +256,5 @@ typedef void (^AgentRequestResponseBlock)(AgentRequestError *err,
  * block.
  */
 
-- (instancetype) end: (AgentRequestResponseBlock) done;
+- (instancetype) end: (LSAgentRequestResponseBlock) done;
 @end

@@ -1,17 +1,19 @@
 {
-  "name": "objective-agent",
+  "name": "LSAgent",
   "version": "0.0.1",
-  "repo": "littlstar/objective-agent",
+  "repo": "littlstar/LSAgent",
   "description": "Simple Objective-C HTTP request library.",
   "keywords": ["http", "objecive-c", "objc", "request"],
   "src": [
-    "include/agent.h",
-    "include/request.h",
-    "include/response.h",
+    "include/LSAgent/LSAgent.h",
+    "include/LSAgent/LSAgentRequest.h",
+    "include/LSAgent/LSAgentResponse.h",
 
-    "src/agent.m",
-    "src/request.m",
-    "src/response.m"
-  ]
+    "src/LSAgent.m",
+    "src/LSAgentRequest.m",
+    "src/LSAgentResponse.m"
+  ],
+  "dependencies": {
+    "littlstar/LSBatch": "*"
+  }
 }
-

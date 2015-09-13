@@ -7,7 +7,7 @@ SRC := $(wildcard src/*.m)
 OBJS := $(SRC:.m=.o)
 
 ## Target static library name
-TARGET_STATIC := libagent.a
+TARGET_STATIC := libLSAgent.a
 
 ## Compiler flags
 CFLAGS += -Iinclude

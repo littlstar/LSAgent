@@ -4,8 +4,8 @@
  * copyright (2) 2015 - Littlstar
  */
 
-#import <agent/request.h>
-#import <agent/response.h>
+#import <LSAgent/LSAgentRequest.h>
+#import <LSAgent/LSAgentResponse.h>
 
 /**
  * Predicate to determine if `a' is a
@@ -81,10 +81,10 @@ serialize (id obj) {
 }
 
 /**
- * AgentRequestError implementation.
+ * LSAgentRequestError implementation.
  */
 
-@implementation AgentRequestError
+@implementation LSAgentRequestError
 @synthesize message;
 @end
 
@@ -92,7 +92,7 @@ serialize (id obj) {
  * NSURLConnection protocol methods.
  */
 
-@interface AgentResponse ()
+@interface LSAgentResponse ()
 
 /**
  * Handle event when request connection receives
@@ -127,26 +127,26 @@ serialize (id obj) {
 @end
 
 /**
- * AgentRequest class implementation. This class
+ * LSAgentRequest class implementation. This class
  * is never used directly but rather returned from
  * the agent API interface.
  */
 
-@implementation AgentRequest
+@implementation LSAgentRequest
 
 /**
- * Creates an instance of `AgentRequest' from
+ * Creates an instance of `LSAgentRequest' from
  * an agent request method and URL.
  */
 
-+ (id) new: (AgentRequestMethod) method url: (id) url {
++ (id) new: (LSAgentRequestMethod) method url: (id) url {
   if (isTypeof(url, NSString)) {
     url = [NSURL URLWithString: url];
   }
 
   if (!isTypeof(url, NSURL)) {
     [NSException raise: @"Invalid URL"
-                format: @"[AgentRequest new:url] expects NSString or NSURL."];
+                format: @"[LSAgentRequest new:url] expects NSString or NSURL."];
     return nil;
   }
 
@@ -158,13 +158,13 @@ serialize (id obj) {
  * Class initializer from url
  */
 
-- (id) init: (AgentRequestMethod) method url: (NSURL *) url {
+- (id) init: (LSAgentRequestMethod) method url: (NSURL *) url {
   [super init];
   _url = url;
   _data = nil;
   _form = new(NSMutableDictionary);
   _query = new(NSMutableDictionary);
-  _method = AGENT_GET;
+  _method = method;
   _headers = new(NSMutableDictionary);
   _aborted = NO;
   _timeout = 0;
@@ -345,11 +345,17 @@ serialize (id obj) {
  * block.
  */
 
-- (instancetype) end: (AgentRequestResponseBlock) done {
+- (instancetype) end: (LSAgentRequestResponseBlock) done {
+  NSString *queryString = nil;
   NSString *httpmethod = nil;
+  NSData *payload = nil;
+
+  if (_query && [_query count]) {
+    queryString = serialize(_query);
+  }
 
   // set callback
-  _callback = done;
+  _callback = [done copy];
 
   // initialize request
   _request = [[NSMutableURLRequest alloc]
@@ -371,6 +377,8 @@ serialize (id obj) {
     default: [NSException raise: @"Invalid method" format: @""];
   }
 
+  NSLog(@"method = %@", httpmethod);
+
   // set method
   [_request setHTTPMethod: httpmethod];
 
@@ -378,8 +386,24 @@ serialize (id obj) {
   if (_method == AGENT_PUT || _method == AGENT_POST) {
     if (isTypeof(_data, NSString)) {
       [self set: @"Content-Length" value: [
-        NSString stringWithFormat: @"%d", (unsigned int) [(NSString *) _data length]
+        NSString stringWithFormat: @"%d",
+                 (unsigned int) [(NSString *) _data length]
       ]];
+
+      payload = [_data dataUsingEncoding: NSUTF8StringEncoding];
+      [_request setHTTPBody: payload];
+    } else if (isTypeof(_data, NSMutableDictionary) ||
+               isTypeof(_data, NSMutableArray)) {
+      NSError *err = nil;
+      payload = [NSJSONSerialization dataWithJSONObject: _data
+                                                options: 0
+                                                  error: &err];
+
+      if (err == nil) [_request setHTTPBody: payload];
+      else {
+        NSLog(@"SerializationError: %@", err);
+        return self;
+      }
     }
   }
 
@@ -396,6 +420,9 @@ serialize (id obj) {
            delegate: self
    startImmediately: YES
   ];
+
+  // shutup
+  (void) conn;
   return self;
 }
 
@@ -429,7 +456,7 @@ serialize (id obj) {
 
 - (void) connection: (NSURLConnection *) connection
    didFailWithError: (NSError *) error {
-  _callback((AgentRequestError *) error, nil);
+  _callback((LSAgentRequestError *) error, nil);
 }
 
 /**
@@ -438,7 +465,7 @@ serialize (id obj) {
  */
 
 - (void) connectionDidFinishLoading: (NSURLConnection *) connection {
-  AgentResponse *res = [AgentResponse new: self];
+  LSAgentResponse *res = [LSAgentResponse new: self];
   [res initializeWithNativeResponse: _response];
   if (_received) {
     [res setBody: [NSData dataWithData: _received]];

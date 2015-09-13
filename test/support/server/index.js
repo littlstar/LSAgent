@@ -85,6 +85,12 @@ app.get('/xdomain', (req, res) => {
 });
 
 /**
+ * Echo 'ok' back to client.
+ */
+
+app.get('/ok', (_, res) => res.send('ok'));
+
+/**
  * Initialize test server.
  */
 

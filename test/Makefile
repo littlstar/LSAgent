@@ -1,5 +1,11 @@
-## libagent dependency
-LIB := ../libagent.a
+## libLSAgent dependency
+LIB := ../libLSAgent.a
+
+## Dependency source files
+DEPSRC := $(shell ls ../deps/*/*.m)
+
+## Dependency object files
+DEPOBJS := $(DEPSRC:.m=.o)
 
 ## Test source files
 SRC := $(wildcard *.m)
@@ -12,6 +18,8 @@ TESTS := $(SRC:.m=)
 
 ## Compiler flags
 CFLAGS += -I../include
+CFLAGS += -I../deps
+CFLAGS += -Wall
 
 ## Linker flags
 LDFLAGS += -lobjc -framework Cocoa
@@ -26,14 +34,19 @@ NPM := $(shell which npm)
 all: support $(TESTS) support/cleanup
 
 ## Builds a named test
+$(TESTS): $(DEPOBJS)
 $(TESTS): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $< -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $(DEPOBJS) $< -o $@
 	./$@
 
 ## Builds test object files
 $(OBJS): $(LIB)
 $(OBJS): $(SRC)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $(@:.o=.m) -o $@
+
+## Builds dependency objects
+$(DEPOBJS): $(DEPSRC)
+	$(CC) $(CFLAGS) -c $(@:.o=.m) -o $@
 
 ## Ensure dependency library is built
 $(LIB):
@@ -43,6 +56,7 @@ $(LIB):
 clean: support/clean
 	$(RM) -f $(OBJS)
 	$(RM) -f $(TESTS)
+	$(RM) -f $(DEPOBJS)
 
 ## Support test tasks
 .PHONY: support

@@ -1,5 +1,5 @@
 /**
- * `respons.h' - libagent
+ * `LSAgentResponse.h' - libLSAgent
  *
  * copyright (2) 2015 - Littlstar
  */
@@ -10,19 +10,19 @@
  * Class dependencies.
  */
 
-@class AgentRequest;
+@class LSAgentRequest;
 
 /**
- * AgentResponse class interface.
+ * LSAgentResponse class interface.
  */
 
-@interface AgentResponse : NSObject
+@interface LSAgentResponse : NSObject
 
 /**
  * The initiating request object for this response.
  */
 
-@property (nonatomic, strong) AgentRequest *request;
+@property (nonatomic, strong) LSAgentRequest *request;
 
 /**
  * Response headers.
@@ -49,17 +49,17 @@
 @property (nonatomic, readonly) NSData *body;
 
 /**
- * Creates an instance of `AgentResponse' from
+ * Creates an instance of `LSAgentResponse' from
  * an initiated request.
  */
 
-+ (id) new: (AgentRequest *) request;
++ (id) new: (LSAgentRequest *) request;
 
 /**
- * Class initializer from `AgentRequest'.
+ * Class initializer from `LSAgentRequest'.
  */
 
-- (id) init: (AgentRequest *) request;
+- (id) init: (LSAgentRequest *) request;
 
 /**
  * Initializes response with native response.
