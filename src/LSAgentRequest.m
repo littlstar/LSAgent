@@ -377,8 +377,6 @@ serialize (id obj) {
     default: [NSException raise: @"Invalid method" format: @""];
   }
 
-  NSLog(@"method = %@", httpmethod);
-
   // set method
   [_request setHTTPMethod: httpmethod];
 
