@@ -3,6 +3,8 @@ Pod::Spec.new do |s|
   s.version = "0.0.2"
   s.summary = "Objective-C port of TJ's wonderful superagent library"
   s.description  = <<-DESC
+    Objective-C port of TJ's wonderful superagent library.
+    Simple HTTP Request library.
   DESC
   s.homepage = "https://github.com/littlstar/LSAgent"
   s.license = "MIT"
