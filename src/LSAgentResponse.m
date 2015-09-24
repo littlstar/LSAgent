@@ -29,7 +29,7 @@
  */
 
 - (id) init: (LSAgentRequest *) request {
-  [super init];
+  self = [super init];
   _request = request;
   _response = nil;
   headers = nil;

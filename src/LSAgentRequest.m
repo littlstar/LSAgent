@@ -159,7 +159,7 @@ serialize (id obj) {
  */
 
 - (id) init: (LSAgentRequestMethod) method url: (NSURL *) url {
-  [super init];
+  self = [super init];
   _url = url;
   _data = nil;
   _form = new(NSMutableDictionary);
