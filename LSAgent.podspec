@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = "LSAgent"
-  s.version = "0.0.1"
+  s.version = "0.0.2"
   s.summary = "Objective-C port of TJ's wonderful superagent library"
   s.description  = <<-DESC
   DESC

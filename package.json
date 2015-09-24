@@ -1,6 +1,6 @@
 {
   "name": "LSAgent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repo": "littlstar/LSAgent",
   "description": "Simple Objective-C HTTP request library.",
   "keywords": ["http", "objecive-c", "objc", "request"],
