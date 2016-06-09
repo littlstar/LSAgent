@@ -14,7 +14,7 @@
  */
 
 + (LSAgentRequest *) get: (NSString *) url {
-  return [LSAgentRequest new: AGENT_GET url: url];
+    return [LSAgentRequest new: AGENT_GET url: url];
 }
 
 /**
@@ -22,7 +22,7 @@
  */
 
 + (LSAgentRequest *) post: (NSString *) url {
-  return [LSAgentRequest new: AGENT_POST url: url];
+    return [LSAgentRequest new: AGENT_POST url: url];
 }
 
 /**
@@ -30,7 +30,7 @@
  */
 
 + (LSAgentRequest *) put: (NSString *) url {
-  return [LSAgentRequest new: AGENT_PUT url: url];
+    return [LSAgentRequest new: AGENT_PUT url: url];
 }
 
 /**
@@ -38,7 +38,7 @@
  */
 
 + (LSAgentRequest *) delete: (NSString *) url {
-  return [LSAgentRequest new: AGENT_DELETE url: url];
+    return [LSAgentRequest new: AGENT_DELETE url: url];
 }
 
 /**
@@ -46,7 +46,7 @@
  */
 
 + (LSAgentRequest *) head: (NSString *) url {
-  return [LSAgentRequest new: AGENT_HEAD url: url];
+    return [LSAgentRequest new: AGENT_HEAD url: url];
 }
 
 /**
@@ -54,7 +54,7 @@
  */
 
 + (LSAgentRequest *) options: (NSString *) url {
-  return [LSAgentRequest new: AGENT_OPTIONS url: url];
+    return [LSAgentRequest new: AGENT_OPTIONS url: url];
 }
 
 /**
@@ -62,6 +62,6 @@
  */
 
 + (LSAgentRequest *) patch: (NSString *) url {
-  return [LSAgentRequest new: AGENT_PATCH url: url];
+    return [LSAgentRequest new: AGENT_PATCH url: url];
 }
 @end

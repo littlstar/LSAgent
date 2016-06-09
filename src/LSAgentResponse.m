@@ -21,7 +21,7 @@
  */
 
 + (id) new: (LSAgentRequest *) request {
-  return (id) [[self alloc] init: request];
+    return (id) [[self alloc] init: request];
 }
 
 /**
@@ -29,11 +29,11 @@
  */
 
 - (id) init: (LSAgentRequest *) request {
-  self = [super init];
-  _request = request;
-  _response = nil;
-  headers = nil;
-  return self;
+    self = [super init];
+    _request = request;
+    _response = nil;
+    headers = nil;
+    return self;
 }
 
 /**
@@ -41,12 +41,12 @@
  */
 
 - (id) initializeWithNativeResponse: (NSURLResponse *) response {
-  _response = (NSHTTPURLResponse *) response;
-  if ([_response respondsToSelector: @selector(allHeaderFields)]) {
-    headers = _response.allHeaderFields;
-  }
-  statusCode = _response.statusCode;
-  return self;
+    _response = (NSHTTPURLResponse *) response;
+    if ([_response respondsToSelector: @selector(allHeaderFields)]) {
+        headers = _response.allHeaderFields;
+    }
+    statusCode = _response.statusCode;
+    return self;
 }
 
 /**
@@ -54,7 +54,7 @@
  */
 
 - (id) setBody: (NSData *) b {
-  body = b;
-  return self;
+    body = b;
+    return self;
 }
 @end
