@@ -28,7 +28,7 @@
  * Response headers.
  */
 
-@property (nonatomic, assign) NSDictionary *headers;
+@property (nonatomic, strong) NSDictionary *headers;
 
 /**
  * Native response object.

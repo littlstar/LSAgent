@@ -69,7 +69,7 @@ typedef void (^LSAgentRequestResponseBlock)(LSAgentRequestError *err,
  * The HTTP request URL as an instance of NSURL
  */
 
-@property (nonatomic, assign) NSURL *url;
+@property (nonatomic, strong) NSURL *url;
 
 /**
  * Request timeout in seconds.
